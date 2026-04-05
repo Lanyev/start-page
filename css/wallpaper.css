@@ -1,0 +1,233 @@
+/* ================================================================
+   WALLPAPER — Capas de fondo, crossfade y controles de navegación
+   ================================================================ */
+
+/* ── Capas de imagen ───────────────────────────────────────────── */
+#wallpaper-a,
+#wallpaper-b {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#wallpaper-a { z-index: 0; }
+
+/* B arranca invisible; la clase .wp-transitioning activa el fade */
+#wallpaper-b { z-index: 1; opacity: 0; }
+
+#wallpaper-b.wp-transitioning {
+  transition: opacity 1.5s ease-in-out;
+}
+
+/* ── Overlay de color (dimming / tema claro) ───────────────────── */
+#wallpaper-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: var(--color-bg-overlay);
+  pointer-events: none;
+  transition: background 0.4s ease;
+}
+
+/* ── Zona de hover (esquina inferior derecha) ──────────────────── */
+.wp-nav-zone {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 180px;
+  height: 100px;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 1.25rem 1.5rem;
+}
+
+.wp-controls {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.wp-nav-zone:hover .wp-controls { opacity: 1; }
+
+/* ── Botones de flecha ─────────────────────────────────────────── */
+.wp-arrow {
+  background: rgba(10, 10, 30, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #e8e8f0;
+  cursor: pointer;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+
+.wp-arrow svg { width: 1rem; height: 1rem; pointer-events: none; }
+
+.wp-arrow:hover {
+  background: rgba(123, 97, 255, 0.45);
+  border-color: rgba(123, 97, 255, 0.5);
+  transform: scale(1.08);
+}
+
+/* ── Indicadores de punto ──────────────────────────────────────── */
+.wp-dots {
+  position: fixed;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.wp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s, width 0.25s, transform 0.2s;
+}
+
+.wp-dot:hover {
+  background: rgba(255, 255, 255, 0.65);
+  transform: scale(1.2);
+}
+
+.wp-dot.active {
+  background: var(--color-primary);
+  width: 20px;
+}
+
+/* ── Ocultar controles en tema claro (sin wallpaper) ───────────── */
+[data-theme="light"] .wp-nav-zone,
+[data-theme="light"] .wp-dots { display: none; }
+
+/* ── Diálogo gestionar fondos ──────────────────────────────────── */
+.wp-settings-dialog {
+  max-width: min(96vw, 440px);
+}
+
+.wp-settings__hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.wp-settings__add-url {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wp-settings__add-url .bookmark-modal__label {
+  margin: 0;
+}
+
+.wp-settings__file-label {
+  margin: 0;
+}
+
+.wp-settings__file {
+  margin-top: 0.35rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  max-width: 100%;
+}
+
+.wp-settings__scroll {
+  max-height: min(42vh, 320px);
+  min-height: 4rem;
+}
+
+.wp-settings__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wp-settings__empty {
+  margin: 0;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.wp-settings__row {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.5rem;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+[data-theme="light"] .wp-settings__row {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.wp-settings__thumb {
+  width: 3.25rem;
+  height: 2.15rem;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.wp-settings__meta {
+  min-width: 0;
+}
+
+.wp-settings__label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.wp-settings__remove {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.wp-settings__remove:hover {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.wp-settings__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}

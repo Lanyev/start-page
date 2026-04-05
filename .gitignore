@@ -1,0 +1,13 @@
+# Credenciales / entorno local (copia desde start-page.local.env.cmd.example)
+start-page.local.env.cmd
+
+# Datos personales: favoritos, lectores RSS y columnas guardados por el servidor local
+data/remote-dashboard.json
+
+# Tus valores por defecto locales (opcional). En el repo solo va el .example
+data/start-page-defaults.json
+
+# Sistema
+Thumbs.db
+Desktop.ini
+.DS_Store

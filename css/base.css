@@ -1,0 +1,86 @@
+/* ================================================================
+   BASE — Variables de diseño, reset y estilos de elemento raíz
+   Todos los demás archivos CSS dependen de estas variables.
+   ================================================================ */
+
+/* ── Tokens de diseño (tema oscuro, default) ──────────────────── */
+:root {
+  --font-body: 'Satoshi', sans-serif;
+
+  --color-bg-body:      #0a0a14;
+  --color-bg-overlay:   rgba(10, 10, 20, 0.55);
+  --color-surface:      rgba(26, 26, 46, 0.85);
+  --color-surface-hover:rgba(36, 36, 66, 0.92);
+  --color-border:       rgba(255, 255, 255, 0.1);
+  --color-text:         #e8e8f0;
+  --color-text-muted:   #9999bb;
+  --color-primary:      #7b61ff;
+  --color-primary-glow: rgba(123, 97, 255, 0.35);
+  --color-header-bg:    rgba(10, 10, 25, 0.6);
+
+  --radius-card:  14px;
+  --radius-input: 10px;
+
+  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-primary: 0 0 20px var(--color-primary-glow);
+  --blur-glass:     blur(14px);
+
+  /* Escala tipográfica fluida */
+  --text-xs:   clamp(0.65rem,  1.2vw, 0.75rem);
+  --text-sm:   clamp(0.75rem,  1.4vw, 0.875rem);
+  --text-base: clamp(0.875rem, 1.6vw, 1rem);
+  --text-lg:   clamp(1rem,     2vw,   1.25rem);
+  --text-xl:   clamp(1.5rem,   4vw,   2.5rem);
+
+  --transition: 0.2s ease;
+}
+
+/* ── Tema claro ────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg-overlay:    rgba(240, 240, 255, 0.97);
+  --color-surface:       rgba(255, 255, 255, 0.92);
+  --color-surface-hover: rgba(245, 245, 255, 0.97);
+  --color-border:        rgba(0, 0, 0, 0.08);
+  --color-text:          #1a1a2e;
+  --color-text-muted:    #6666aa;
+  --color-primary:       #5b41df;
+  --color-primary-glow:  rgba(91, 65, 223, 0.2);
+  --color-header-bg:     rgba(230, 230, 255, 0.82);
+  --shadow-card:         0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background-color: var(--color-bg-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Solo lectores de pantalla */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

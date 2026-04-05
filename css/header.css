@@ -1,0 +1,272 @@
+/* ================================================================
+   HEADER — Barra superior fija: reloj, búsqueda y toggle de tema
+   ================================================================ */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-header-bg);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-bottom: 1px solid var(--color-border);
+  padding: clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 4vw, 3rem);
+  /* 1fr | auto | 1fr: el buscador queda centrado en el header aunque cambie el ancho del reloj */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 680px) minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(0.75rem, 2vw, 1.5rem);
+  row-gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+/* ── Reloj ─────────────────────────────────────────────────────── */
+.clock {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+  contain: content;
+}
+
+.clock__time {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  min-width: 8.5ch;
+  display: inline-block;
+}
+
+.clock__date {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+/* ── Barra de búsqueda ─────────────────────────────────────────── */
+.search-bar {
+  grid-column: 2;
+  justify-self: center;
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.header-trailing {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  flex-shrink: 0;
+}
+
+.search-bar__engine {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.search-bar__engine:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.search-bar__input-wrap {
+  flex: 1;
+  display: flex;
+}
+
+.search-bar__input {
+  flex: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-right: none;
+  border-radius: var(--radius-input) 0 0 var(--radius-input);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: 0.55rem 1rem;
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.search-bar__input::placeholder { color: var(--color-text-muted); }
+
+.search-bar__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.search-bar__btn {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 0 var(--radius-input) var(--radius-input) 0;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.55rem 1rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: opacity var(--transition), box-shadow var(--transition);
+}
+
+.search-bar__btn:hover {
+  opacity: 0.9;
+  box-shadow: var(--shadow-primary);
+}
+
+/* ── Toggle de tema ────────────────────────────────────────────── */
+.theme-toggle {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  flex-shrink: 0;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.theme-toggle svg { width: 1.1rem; height: 1.1rem; }
+
+.theme-toggle:hover {
+  box-shadow: 0 0 12px var(--color-primary-glow);
+  transform: rotate(20deg);
+}
+
+/* ── Menú de favoritos (exportar / importar / restablecer) ─────── */
+.header-fav-menu {
+  position: relative;
+}
+
+.header-fav-menu__trigger {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  transition: color var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.header-fav-menu__trigger:hover {
+  color: var(--color-text);
+  border-color: rgba(123, 97, 255, 0.35);
+  box-shadow: 0 0 12px var(--color-primary-glow);
+}
+
+.header-fav-menu__trigger[aria-expanded="true"] {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.header-fav-menu__panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 150;
+  min-width: 11rem;
+  padding: 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+}
+
+.header-fav-menu__panel:not([hidden]) {
+  animation: header-fav-menu-in 0.14s ease-out;
+}
+
+@keyframes header-fav-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-fav-menu__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 0.5rem 0.65rem;
+  transition: color var(--transition), background var(--transition);
+}
+
+.header-fav-menu__item:hover {
+  color: var(--color-primary);
+  background: rgba(123, 97, 255, 0.08);
+}
+
+.header-fav-menu__item--danger:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* ── Responsivo ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  header {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .clock {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .header-trailing {
+    grid-column: 2;
+    grid-row: 1;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .search-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: 100%;
+  }
+}

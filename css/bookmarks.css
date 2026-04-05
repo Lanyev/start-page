@@ -1,0 +1,523 @@
+/* ================================================================
+   BOOKMARKS — Grid de tarjetas de categorías y sus enlaces
+   ================================================================ */
+
+/* ── Grid contenedor ───────────────────────────────────────────── */
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--bookmark-cols, 2), minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.1vw, 0.95rem);
+  align-content: start;
+}
+
+.bookmarks-grid__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 1.25rem;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+/* ── Tarjeta (glassmorphism) ───────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 0.72rem 0.82rem;
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.card:hover {
+  border-color: rgba(123, 97, 255, 0.3);
+  box-shadow: var(--shadow-card), 0 0 0 1px rgba(123, 97, 255, 0.15);
+}
+
+/* ── Cabecera de tarjeta (título + añadir) ─────────────────────── */
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+}
+
+.card__title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.card__title-icon {
+  border-radius: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.card__title-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__add-btn {
+  flex-shrink: 0;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: rgba(123, 97, 255, 0.12);
+  color: var(--color-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition), transform 0.15s ease;
+}
+
+.card__add-btn:hover {
+  background: rgba(123, 97, 255, 0.22);
+  border-color: rgba(123, 97, 255, 0.45);
+}
+
+.card__add-btn:active { transform: scale(0.92); }
+
+/* ── Lista de enlaces ──────────────────────────────────────────── */
+.card__links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.card__item { list-style: none; }
+
+.card__link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+
+.card__item:hover .card__link-row {
+  background: rgba(123, 97, 255, 0.06);
+}
+
+.card__link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.2rem 0.3rem 0.2rem 0.32rem;
+  border-radius: 6px 0 0 6px;
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  transition: color var(--transition), background var(--transition);
+}
+
+.card__link:hover {
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.card__link-delete {
+  flex-shrink: 0;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+}
+
+.card__item:hover .card__link-delete,
+.card__link-delete:focus-visible {
+  opacity: 1;
+}
+
+.card__link-delete:hover,
+.card__link-delete:focus-visible {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+}
+
+/* Móvil / táctil: el botón eliminar siempre visible (sin depender de hover) */
+@media (hover: none) {
+  .card__link-delete { opacity: 1; }
+}
+
+/* ── Favicon ───────────────────────────────────────────────────── */
+.card__link-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* Contenedor del SVG de globo (fallback de favicon) */
+.favicon-svg-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-primary);
+}
+
+/* ── Nombre del enlace ─────────────────────────────────────────── */
+.card__link-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Toast (avisos breves) ─────────────────────────────────────── */
+.app-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 10001;
+  max-width: min(90vw, 360px);
+  padding: 0.55rem 1rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.app-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.app-toast--error {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+
+/* ── Confirmar eliminar favorito ───────────────────────────────── */
+.bookmark-delete-confirm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  max-width: min(92vw, 380px);
+  width: 100%;
+  max-height: min(90vh, 100%);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.bookmark-delete-confirm::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.bookmark-delete-confirm__box {
+  padding: 1.15rem 1.25rem 1.2rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card), 0 24px 48px rgba(0, 0, 0, 0.45);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+}
+
+.bookmark-delete-confirm__title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.5rem;
+}
+
+.bookmark-delete-confirm__text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.bookmark-delete-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bookmark-delete-confirm__btn {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  transition: opacity var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.bookmark-delete-confirm__btn--secondary {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.bookmark-delete-confirm__btn--secondary:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.bookmark-delete-confirm__btn--danger {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+
+.bookmark-delete-confirm__btn--danger:hover {
+  background: rgba(248, 113, 113, 0.35);
+}
+
+[data-theme="light"] .bookmark-delete-confirm__btn--danger {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.15);
+}
+
+[data-theme="light"] .bookmark-delete-confirm__btn--danger:hover {
+  background: rgba(248, 113, 113, 0.28);
+}
+
+/* ── Barra deshacer tras eliminar (dialog no modal) ─────────────── */
+.bookmark-deleted-undo {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: min(94vw, 420px);
+  width: max-content;
+  padding: 0;
+  border: none;
+  background: transparent;
+  z-index: 10002;
+}
+
+.bookmark-deleted-undo::backdrop {
+  background: transparent;
+}
+
+.bookmark-deleted-undo__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.65rem 0.55rem 1rem;
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  animation: bookmark-undo-bar-in 0.22s ease-out;
+}
+
+@keyframes bookmark-undo-bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bookmark-deleted-undo__message {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.bookmark-deleted-undo__btn {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  border: 1px solid var(--color-primary);
+  background: rgba(123, 97, 255, 0.2);
+  color: var(--color-primary);
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+.bookmark-deleted-undo__btn:hover {
+  background: rgba(123, 97, 255, 0.32);
+  box-shadow: 0 0 12px var(--color-primary-glow);
+}
+
+[data-theme="light"] .bookmark-deleted-undo__btn {
+  background: rgba(91, 65, 223, 0.12);
+}
+
+[data-theme="light"] .bookmark-deleted-undo__btn:hover {
+  background: rgba(91, 65, 223, 0.22);
+}
+
+/* ── Modal añadir favorito ─────────────────────────────────────── */
+.bookmark-modal {
+  max-width: min(92vw, 420px);
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card), 0 24px 48px rgba(0, 0, 0, 0.45);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+}
+
+.bookmark-modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.bookmark-modal__form {
+  padding: 1.15rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.bookmark-modal__title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 0.25rem;
+}
+
+.bookmark-modal__error {
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+  font-size: var(--text-xs);
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.bookmark-modal__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.bookmark-modal__input,
+.bookmark-modal__textarea,
+.bookmark-modal__select {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+[data-theme="light"] .bookmark-modal__input,
+[data-theme="light"] .bookmark-modal__textarea,
+[data-theme="light"] .bookmark-modal__select {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.bookmark-modal__input:focus,
+.bookmark-modal__textarea:focus,
+.bookmark-modal__select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.bookmark-modal__textarea { resize: vertical; min-height: 2.5rem; }
+
+.bookmark-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.bookmark-modal__btn {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity var(--transition), border-color var(--transition);
+}
+
+.bookmark-modal__btn--secondary {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.bookmark-modal__btn--secondary:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.bookmark-modal__btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.bookmark-modal__btn--primary:hover { opacity: 0.92; }

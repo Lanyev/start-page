@@ -1,0 +1,18 @@
+{
+  "bookmarkColumns": 2,
+  "rssColumns": 0,
+  "widgets": [
+    {
+      "title": "Ejemplo",
+      "icon": "📌",
+      "links": [
+        {
+          "name": "MDN Web Docs",
+          "url": "https://developer.mozilla.org",
+          "desc": "Plantilla neutra: sustituye estos enlaces desde el menú ⋮ → Personalizar página."
+        }
+      ]
+    }
+  ],
+  "rssReaders": []
+}

@@ -1,0 +1,75 @@
+/* ================================================================
+   LAYOUT — Contenedor principal y grid de dos columnas
+   ================================================================ */
+
+.page-wrapper {
+  position: relative;
+  z-index: 3;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 3.5rem; /* espacio para los puntos del wallpaper */
+}
+
+/* Aviso cuando no hay localStorage (file:// o modo privado estricto) */
+.storage-warning {
+  margin: 0;
+  padding: 0.4rem 1rem;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: rgba(123, 97, 255, 0.12);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Contenido: favoritos (izq., hasta 3 col) + RSS (der., hasta 2 col) */
+.main-layout {
+  flex: 1;
+  --bookmark-cols: 2;
+  --rss-cols: 1;
+  --rss-track-min: 260px;
+  --rss-track-vw: 38vw;
+  --rss-track-max: 400px;
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--rss-track-min), min(var(--rss-track-vw), var(--rss-track-max)));
+  gap: clamp(1rem, 2vw, 1.75rem);
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
+  align-items: start;
+}
+
+.main-layout--no-rss {
+  grid-template-columns: 1fr;
+}
+
+.main-layout__bookmarks {
+  min-width: 0;
+}
+
+.main-layout__rss {
+  display: grid;
+  grid-template-columns: repeat(var(--rss-cols, 1), minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  align-content: start;
+  min-width: 0;
+}
+
+.main-layout__rss:has(.rss-widget:only-child) .rss-widget {
+  grid-column: 1 / -1;
+}
+
+/* ── Responsivo ────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+  .main-layout__rss {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-layout {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+}

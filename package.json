@@ -1,0 +1,8 @@
+{
+  "name": "start-page",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node tools/local-server.mjs"
+  }
+}
