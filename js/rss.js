@@ -1,7 +1,38 @@
 /* ================================================================
    RSS — Varios lectores, feeds configurables por lector
-   Depende de: config.js (CORS_PROXY, RSS_ARTICLE_LIMIT, RSS_AUTO_REFRESH_MS), dashboard.js
+   Depende de: config.js (CORS_PROXY, RSS_ARTICLE_LIMIT, RSS_AUTO_REFRESH_MS), dashboard.js, favicon.js
    ================================================================ */
+
+/** @type {Map<string, { outcomes: FeedOutcome[], selectedIndex: number }>} */
+const rssReaderFeedCache = new Map();
+
+/**
+ * @typedef {{ ok: true, name: string, url: string, articles: object[] } | { ok: false, name: string, url: string, error: unknown }} FeedOutcome
+ */
+
+function getRssTabsId(readerId) {
+  return `rss-tabs-${readerId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+}
+
+function hostnameFromFeedUrl(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, '') || '';
+  } catch {
+    return '';
+  }
+}
+
+function rssFeedFaviconEl(url, size) {
+  const host = hostnameFromFeedUrl(url);
+  if (!host) {
+    const g = createGlobeSvg(size);
+    g.classList.add('rss-feed-tab__icon');
+    return g;
+  }
+  const img = createFaviconImg(host, size);
+  img.className = 'rss-feed-tab__icon';
+  return img;
+}
 
 function buildRssReadersDom() {
   const zone = document.getElementById('rss-zone');
@@ -47,12 +78,24 @@ function buildRssReadersDom() {
     header.appendChild(h2);
     header.appendChild(refreshBtn);
 
+    const body = document.createElement('div');
+    body.className = 'rss-widget__body';
+
+    const tabsEl = document.createElement('div');
+    tabsEl.className = 'rss-widget__feed-tabs';
+    tabsEl.id = getRssTabsId(r.id);
+    tabsEl.hidden = true;
+    tabsEl.setAttribute('role', 'tablist');
+    tabsEl.setAttribute('aria-label', `Fuentes de ${r.title}`);
+
     const feedEl = document.createElement('div');
     feedEl.className = 'rss-widget__feed';
     feedEl.id = `rss-feed-${safeId}`;
 
+    body.appendChild(tabsEl);
+    body.appendChild(feedEl);
     aside.appendChild(header);
-    aside.appendChild(feedEl);
+    aside.appendChild(body);
     zone.appendChild(aside);
 
     refreshBtn.addEventListener('click', () => loadRssReader(r.id));
@@ -66,6 +109,11 @@ function setupRssZoneRetryDelegation() {
   zone.addEventListener('click', e => {
     const retry = e.target.closest('.rss-error__btn');
     if (retry?.dataset.readerId) loadRssReader(retry.dataset.readerId);
+
+    const tab = e.target.closest('[data-rss-feed-tab]');
+    if (tab?.dataset.readerId != null && tab.dataset.feedIndex != null) {
+      selectRssFeedTab(tab.dataset.readerId, Number(tab.dataset.feedIndex));
+    }
   });
 }
 
@@ -83,6 +131,12 @@ async function loadRssReader(readerId) {
   if (!reader || !feedEl) return;
 
   if (!reader.feeds.length) {
+    const tabsEmpty = document.getElementById(getRssTabsId(readerId));
+    if (tabsEmpty) {
+      tabsEmpty.hidden = true;
+      tabsEmpty.innerHTML = '';
+    }
+    rssReaderFeedCache.delete(readerId);
     feedEl.innerHTML = `
       <div class="rss-error rss-error--soft">
         <p>No hay feeds en este lector. Añade URLs en «Personalizar página».</p>
@@ -97,23 +151,60 @@ async function loadRssReader(readerId) {
   try {
     const results = await Promise.allSettled(reader.feeds.map(fetchFeed));
 
-    let articles = [];
-    results.forEach((result, i) => {
+    /** @type {FeedOutcome[]} */
+    const outcomes = results.map((result, i) => {
+      const { name, url } = reader.feeds[i];
       if (result.status === 'fulfilled') {
-        articles = articles.concat(result.value);
-      } else {
-        console.warn(`Feed "${reader.feeds[i].name}" falló:`, result.reason);
+        const sorted = result.value
+          .slice()
+          .sort((a, b) => b.date - a.date)
+          .slice(0, RSS_ARTICLE_LIMIT);
+        return { ok: true, name, url, articles: sorted };
       }
+      console.warn(`Feed "${name}" falló:`, result.reason);
+      return { ok: false, name, url, error: result.reason };
     });
 
-    if (!articles.length) {
+    const anyOk = outcomes.some(o => o.ok);
+    if (!anyOk) {
+      const tabsBad = document.getElementById(getRssTabsId(readerId));
+      if (tabsBad) {
+        tabsBad.hidden = true;
+        tabsBad.innerHTML = '';
+      }
+      rssReaderFeedCache.delete(readerId);
       showRssError(feedEl, readerId);
       return;
     }
 
-    articles.sort((a, b) => b.date - a.date);
-    renderRssArticles(feedEl, articles.slice(0, RSS_ARTICLE_LIMIT));
+    const tabsEl = document.getElementById(getRssTabsId(readerId));
+    let selectedIndex = outcomes.findIndex(o => o.ok);
+    if (selectedIndex < 0) selectedIndex = 0;
+
+    const prev = rssReaderFeedCache.get(readerId);
+    if (prev && prev.selectedIndex < outcomes.length) {
+      const want = outcomes[prev.selectedIndex];
+      if (want && want.ok) selectedIndex = prev.selectedIndex;
+    }
+
+    rssReaderFeedCache.set(readerId, { outcomes, selectedIndex });
+
+    if (reader.feeds.length > 1 && tabsEl) {
+      tabsEl.hidden = false;
+      renderRssFeedTabs(tabsEl, readerId, outcomes, selectedIndex);
+    } else if (tabsEl) {
+      tabsEl.hidden = true;
+      tabsEl.innerHTML = '';
+    }
+
+    renderRssFeedContent(feedEl, outcomes[selectedIndex]);
   } catch (err) {
+    const tabsErr = document.getElementById(getRssTabsId(readerId));
+    if (tabsErr) {
+      tabsErr.hidden = true;
+      tabsErr.innerHTML = '';
+    }
+    rssReaderFeedCache.delete(readerId);
     console.error('RSS:', err);
     showRssError(feedEl, readerId);
   } finally {
@@ -152,30 +243,88 @@ async function fetchFeed({ name, url }) {
   const doc  = new DOMParser().parseFromString(text, 'application/xml');
 
   return doc.querySelector('feed')
-    ? parseAtom(doc, name)
-    : parseRss(doc, name);
+    ? parseAtom(doc, name, url)
+    : parseRss(doc, name, url);
 }
 
-function parseRss(doc, source) {
+function parseRss(doc, source, feedUrl) {
   return Array.from(doc.querySelectorAll('item')).map(item => ({
     title:  item.querySelector('title')?.textContent?.trim() || 'Sin título',
     link:   item.querySelector('link')?.textContent?.trim() || '#',
     source,
+    feedUrl,
     date:   new Date(item.querySelector('pubDate')?.textContent?.trim() || 0),
   }));
 }
 
-function parseAtom(doc, source) {
+function parseAtom(doc, source, feedUrl) {
   return Array.from(doc.querySelectorAll('entry')).map(entry => ({
     title: entry.querySelector('title')?.textContent?.trim() || 'Sin título',
     link:  entry.querySelector('link[rel="alternate"]')?.getAttribute('href')
            || entry.querySelector('link')?.getAttribute('href') || '#',
     source,
+    feedUrl,
     date:  new Date(
       entry.querySelector('updated')?.textContent?.trim()
       || entry.querySelector('published')?.textContent?.trim() || 0
     ),
   }));
+}
+
+function renderRssFeedTabs(tabsEl, readerId, outcomes, selectedIndex) {
+  tabsEl.innerHTML = '';
+  outcomes.forEach((out, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rss-feed-tab' + (out.ok ? '' : ' rss-feed-tab--failed');
+    btn.dataset.rssFeedTab = '';
+    btn.dataset.readerId = readerId;
+    btn.dataset.feedIndex = String(i);
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', i === selectedIndex ? 'true' : 'false');
+    btn.title = out.name + (out.ok ? '' : ' (error al cargar)');
+
+    btn.appendChild(rssFeedFaviconEl(out.url, 14));
+
+    const label = document.createElement('span');
+    label.className = 'rss-feed-tab__label';
+    label.textContent = out.name;
+    btn.appendChild(label);
+
+    tabsEl.appendChild(btn);
+  });
+}
+
+function selectRssFeedTab(readerId, feedIndex) {
+  const cached = rssReaderFeedCache.get(readerId);
+  const feedEl = document.getElementById(getFeedContainerId(readerId));
+  const tabsEl = document.getElementById(getRssTabsId(readerId));
+  if (!cached || !feedEl || !tabsEl || !cached.outcomes[feedIndex]) return;
+
+  cached.selectedIndex = feedIndex;
+  tabsEl.querySelectorAll('.rss-feed-tab').forEach((btn, i) => {
+    btn.setAttribute('aria-selected', i === feedIndex ? 'true' : 'false');
+  });
+  renderRssFeedContent(feedEl, cached.outcomes[feedIndex]);
+}
+
+function renderRssFeedContent(feedEl, outcome) {
+  if (!outcome.ok) {
+    feedEl.innerHTML = `
+      <div class="rss-error rss-error--soft">
+        <p>No se pudo cargar «${escapeHtml(outcome.name)}». Pulsa «Actualizar» en la cabecera o revisa la URL del feed.</p>
+      </div>`;
+    return;
+  }
+  renderRssArticles(feedEl, outcome.articles);
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function renderRssArticles(feedEl, articles) {
@@ -195,6 +344,10 @@ function renderRssArticles(feedEl, articles) {
     const meta = document.createElement('div');
     meta.className = 'rss-item__meta';
 
+    const host = hostnameFromFeedUrl(art.feedUrl || '');
+    const fav = host ? createFaviconImg(host, 14) : createGlobeSvg(14);
+    fav.classList.add('rss-item__favicon');
+
     const src = document.createElement('span');
     src.className   = 'rss-item__source';
     src.textContent = art.source;
@@ -203,6 +356,7 @@ function renderRssArticles(feedEl, articles) {
     date.className   = 'rss-item__date';
     date.textContent = relativeDate(art.date);
 
+    meta.appendChild(fav);
     meta.appendChild(src);
     meta.appendChild(date);
     item.appendChild(link);

@@ -71,6 +71,84 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Cuerpo (pestañas + lista) ─────────────────────────────────── */
+.rss-widget__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Selector de fuente (varios feeds en un lector) ────────────── */
+.rss-widget__feed-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.rss-widget__feed-tabs::-webkit-scrollbar { height: 4px; }
+.rss-widget__feed-tabs::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.rss-feed-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 9rem;
+  padding: 0.22rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.rss-feed-tab:hover {
+  color: var(--color-text);
+  border-color: rgba(123, 97, 255, 0.35);
+}
+
+.rss-feed-tab[aria-selected="true"] {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: rgba(123, 97, 255, 0.1);
+}
+
+.rss-feed-tab--failed {
+  opacity: 0.55;
+}
+
+.rss-feed-tab__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.rss-feed-tab__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 /* ── Lista de artículos ────────────────────────────────────────── */
 .rss-widget__feed {
   overflow-y: auto;
@@ -112,8 +190,19 @@
 .rss-item__meta {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
+}
+
+.rss-item__favicon {
+  flex-shrink: 0;
+  opacity: 0.92;
+}
+
+.rss-item__meta .rss-item__favicon.favicon-svg-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .rss-item__source {
