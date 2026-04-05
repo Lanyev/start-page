@@ -7,7 +7,7 @@ const DASHBOARD_STORAGE_KEY = 'startPage_dashboard_v1';
 const OLD_BOOKMARKS_KEY = 'startPage_bookmarks_v1';
 const DASHBOARD_VERSION = 1;
 
-/** @type {{ version: number, bookmarkColumns: number, rssColumns: number, widgets: object[], rssReaders: object[], calendarEvents: object[] } | null} */
+/** @type {{ version: number, bookmarkColumns: number, rssColumns: number, widgets: object[], rssReaders: object[], calendarEvents: object[], showCalendar: boolean } | null} */
 let dashboard = null;
 let dashboardStorageOk = false;
 
@@ -173,6 +173,7 @@ function validateDashboardObject(d) {
       ? []
       : null;
   if (widgets === null || rssReaders === null || calendarEvents === null) return null;
+  const showCalendar = d.showCalendar === false ? false : true;
   return {
     version: DASHBOARD_VERSION,
     bookmarkColumns: bc,
@@ -180,6 +181,7 @@ function validateDashboardObject(d) {
     widgets,
     rssReaders,
     calendarEvents,
+    showCalendar,
   };
 }
 
@@ -202,6 +204,7 @@ function minimalEmptyDashboard() {
     widgets: [],
     rssReaders: [],
     calendarEvents: [],
+    showCalendar: true,
   };
 }
 
@@ -435,6 +438,7 @@ async function loadDashboardAsync() {
                   calendarEvents: deepClone(
                     Array.isArray(base.calendarEvents) ? base.calendarEvents : [],
                   ),
+                  showCalendar: base.showCalendar === false ? false : true,
                 };
               }
             }
@@ -506,6 +510,11 @@ function applyLayoutToDom() {
   }
   if (main) {
     main.classList.toggle('main-layout--no-rss', hideRss);
+  }
+
+  const calShell = document.querySelector('.main-layout__calendar');
+  if (calShell) {
+    calShell.hidden = dashboard.showCalendar === false;
   }
 }
 

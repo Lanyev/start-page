@@ -533,11 +533,18 @@ function setupBookmarksImportExport() {
     reader.readAsText(f);
   });
 
+  const resetDlg = document.getElementById('dashboard-reset-confirm-dialog');
   document.getElementById('btn-reset-bookmarks')?.addEventListener('click', () => {
-    if (confirm('¿Restablecer la página (cajas, favoritos, calendario y lectores RSS) al estado inicial? Se perderán los cambios no exportados.')) {
-      resetBookmarks();
-      closeFavMenu();
-    }
+    closeFavMenu();
+    resetDlg?.showModal();
+  });
+  document.getElementById('dashboard-reset-cancel')?.addEventListener('click', () => resetDlg?.close());
+  document.getElementById('dashboard-reset-confirm')?.addEventListener('click', () => {
+    resetDlg?.close();
+    resetBookmarks();
+  });
+  resetDlg?.addEventListener('click', e => {
+    if (e.target === resetDlg) resetDlg.close();
   });
 }
 

@@ -36,7 +36,8 @@
     }
   ],
   "rssReaders": [],
-  "calendarEvents": []
+  "calendarEvents": [],
+  "showCalendar": true
 }</script>
 
   <!-- ─── Capas de fondo (crossfade) ─────────────────────────── -->
@@ -221,6 +222,19 @@
     </div>
   </dialog>
 
+  <dialog id="dashboard-reset-confirm-dialog" class="bookmark-delete-confirm" aria-labelledby="dashboard-reset-confirm-title" aria-describedby="dashboard-reset-confirm-text">
+    <div class="bookmark-delete-confirm__box">
+      <h2 id="dashboard-reset-confirm-title" class="bookmark-delete-confirm__title">Advertencia: restablecer página</h2>
+      <p id="dashboard-reset-confirm-text" class="bookmark-delete-confirm__text">
+        Se eliminarán todas las cajas de favoritos, eventos del calendario, lectores RSS y la disposición de la página. Volverás al contenido inicial del sitio. Esta acción no se puede deshacer. Si quieres conservar lo que tienes ahora, usa «Exportar» antes de continuar.
+      </p>
+      <div class="bookmark-delete-confirm__actions">
+        <button type="button" class="bookmark-delete-confirm__btn bookmark-delete-confirm__btn--secondary" id="dashboard-reset-cancel">Cancelar</button>
+        <button type="button" class="bookmark-delete-confirm__btn bookmark-delete-confirm__btn--danger" id="dashboard-reset-confirm">Sí, restablecer</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="bookmark-deleted-undo-dialog" class="bookmark-deleted-undo" aria-labelledby="bookmark-deleted-undo-title" aria-describedby="bookmark-deleted-undo-message">
     <div class="bookmark-deleted-undo__bar">
       <p id="bookmark-deleted-undo-title" class="visually-hidden">Favorito eliminado</p>
@@ -269,6 +283,12 @@
         </fieldset>
         <fieldset class="dashboard-fieldset">
           <legend>Calendario</legend>
+          <div class="dashboard-cols-row dash-calendar-visibility-row">
+            <label class="dash-calendar-visibility-label">
+              <input type="checkbox" id="dash-show-calendar" />
+              Mostrar calendario en la página
+            </label>
+          </div>
           <p class="dash-feeds-label">Eventos locales (mismo JSON que favoritos y RSS al exportar o sincronizar)</p>
           <div id="dash-calendar-events-list"></div>
           <div class="dash-add-bar">

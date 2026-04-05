@@ -164,6 +164,9 @@ function readDraftFromDom() {
   dialogDraft.bookmarkColumns = Math.min(3, Math.max(1, colsBm));
   dialogDraft.rssColumns = Math.min(2, Math.max(0, colsRss));
 
+  const showCal = document.getElementById('dash-show-calendar');
+  dialogDraft.showCalendar = showCal ? showCal.checked : true;
+
   const oldById = Object.fromEntries(dialogDraft.widgets.map(w => [w.id, w]));
 
   const widgets = [];
@@ -277,6 +280,8 @@ function openDashboardCustomize() {
   const colsRss = document.getElementById('dash-rss-cols');
   if (colsBm) colsBm.value = String(dialogDraft.bookmarkColumns);
   if (colsRss) colsRss.value = String(dialogDraft.rssColumns);
+  const showCal = document.getElementById('dash-show-calendar');
+  if (showCal) showCal.checked = dialogDraft.showCalendar !== false;
   renderDashboardWidgetEditor();
   renderDashboardRssEditor();
   renderDashboardCalendarEditor();
