@@ -1,7 +1,7 @@
 /* ================================================================
    MAIN — Punto de entrada; inicializa todos los módulos
    Con atributo `defer` en los <script>, el DOM ya está listo aquí.
-   Primero se cargan favoritos/feeds por defecto desde JSON (dashboard.js).
+   Primero se cargan favoritos, RSS y calendario desde JSON (dashboard.js).
    ================================================================ */
 
 async function boot() {
@@ -18,6 +18,7 @@ async function boot() {
   await initBookmarks();
   initTooltip();
   initRssFeed();
+  initCalendar();
 }
 
 boot();

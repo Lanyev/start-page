@@ -1,13 +1,12 @@
 /* ================================================================
    DASHBOARD UI — Modal «Personalizar página»
-   Depende de: dashboard.js, bookmarks.js (showToast, renderBookmarks…), rss.js (rebuildRssDomAndLoad)
+   Depende de: dashboard.js, bookmarks.js, rss.js, calendar.js (rebuildCalendarDom)
    ================================================================ */
 
 let dialogDraft = null;
 
 function syncBookmarkCategoriesFromDashboard() {
-  const d = getDashboard();
-  if (d) bookmarksCategories = d.widgets;
+  syncBookmarksFromDashboard();
 }
 
 function renderDashboardWidgetEditor() {
@@ -195,6 +194,80 @@ function readDraftFromDom() {
     readers.push({ id, title, feeds });
   });
   dialogDraft.rssReaders = readers;
+
+  const calEvents = [];
+  document.querySelectorAll('#dash-calendar-events-list .dash-cal-row').forEach(row => {
+    const id = row.dataset.eventId;
+    const title = row.querySelector('.dash-cal-title')?.value.trim() || '';
+    const date = row.querySelector('.dash-cal-date')?.value || '';
+    let timeVal = row.querySelector('.dash-cal-time')?.value || '';
+    if (timeVal.length >= 5) timeVal = timeVal.slice(0, 5);
+    else timeVal = '';
+    const notes = row.querySelector('.dash-cal-notes')?.value.trim() || '';
+    const o = { id, title, date };
+    if (timeVal) o.time = timeVal;
+    if (notes) o.notes = notes;
+    calEvents.push(o);
+  });
+  dialogDraft.calendarEvents = calEvents;
+}
+
+function createEmptyCalendarDraftEvent() {
+  const t = new Date();
+  const ymd = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  return { id: newEntityId('cal'), title: 'Nuevo evento', date: ymd };
+}
+
+function renderDashboardCalendarEditor() {
+  const list = document.getElementById('dash-calendar-events-list');
+  if (!list || !dialogDraft) return;
+  list.innerHTML = '';
+
+  if (!Array.isArray(dialogDraft.calendarEvents)) dialogDraft.calendarEvents = [];
+
+  dialogDraft.calendarEvents.forEach((ev, i) => {
+    const row = document.createElement('div');
+    row.className = 'dash-cal-row';
+    row.dataset.eventId = ev.id;
+
+    const title = document.createElement('input');
+    title.type = 'text';
+    title.className = 'dash-cal-title bookmark-modal__input';
+    title.placeholder = 'Título';
+    title.required = true;
+    title.value = ev.title || '';
+
+    const date = document.createElement('input');
+    date.type = 'date';
+    date.className = 'dash-cal-date bookmark-modal__input';
+    date.required = true;
+    date.value = ev.date || '';
+
+    const time = document.createElement('input');
+    time.type = 'time';
+    time.className = 'dash-cal-time bookmark-modal__input';
+    time.value = ev.time || '';
+
+    const notes = document.createElement('input');
+    notes.type = 'text';
+    notes.className = 'dash-cal-notes bookmark-modal__input';
+    notes.placeholder = 'Notas (opcional)';
+    notes.value = ev.notes || '';
+
+    const act = document.createElement('div');
+    act.className = 'dash-row-actions';
+    act.innerHTML = `
+      <button type="button" class="dash-icon-btn" data-dash-cal="up" data-index="${i}" title="Subir">↑</button>
+      <button type="button" class="dash-icon-btn" data-dash-cal="down" data-index="${i}" title="Bajar">↓</button>
+      <button type="button" class="dash-icon-btn dash-icon-btn--danger" data-dash-cal="del" data-index="${i}" title="Eliminar">✕</button>`;
+
+    row.appendChild(title);
+    row.appendChild(date);
+    row.appendChild(time);
+    row.appendChild(act);
+    row.appendChild(notes);
+    list.appendChild(row);
+  });
 }
 
 function openDashboardCustomize() {
@@ -206,6 +279,7 @@ function openDashboardCustomize() {
   if (colsRss) colsRss.value = String(dialogDraft.rssColumns);
   renderDashboardWidgetEditor();
   renderDashboardRssEditor();
+  renderDashboardCalendarEditor();
   dlg?.showModal();
 }
 
@@ -221,6 +295,7 @@ function applyDashboardDialogSave() {
   applyLayoutToDom();
   renderBookmarks();
   rebuildRssDomAndLoad();
+  rebuildCalendarDom();
   document.getElementById('dashboard-customize-dialog')?.close();
   showToast('Página actualizada');
 }
@@ -247,6 +322,7 @@ function setupDashboardCustomizeUi() {
     dialogDraft.widgets.push(createEmptyWidget());
     renderDashboardWidgetEditor();
     renderDashboardRssEditor();
+    renderDashboardCalendarEditor();
   });
 
   document.getElementById('dash-add-rss-reader')?.addEventListener('click', () => {
@@ -255,6 +331,17 @@ function setupDashboardCustomizeUi() {
     dialogDraft.rssReaders.push(createEmptyRssReader());
     renderDashboardWidgetEditor();
     renderDashboardRssEditor();
+    renderDashboardCalendarEditor();
+  });
+
+  document.getElementById('dash-add-calendar-event')?.addEventListener('click', () => {
+    if (!dialogDraft) return;
+    readDraftFromDom();
+    if (!Array.isArray(dialogDraft.calendarEvents)) dialogDraft.calendarEvents = [];
+    dialogDraft.calendarEvents.push(createEmptyCalendarDraftEvent());
+    renderDashboardWidgetEditor();
+    renderDashboardRssEditor();
+    renderDashboardCalendarEditor();
   });
 
   dlg?.addEventListener('click', e => {
@@ -343,6 +430,29 @@ function setupDashboardCustomizeUi() {
       return;
     }
 
+    const cal = t.closest('[data-dash-cal]');
+    if (cal && dialogDraft) {
+      const act = cal.getAttribute('data-dash-cal');
+      const i = parseInt(cal.getAttribute('data-index'), 10);
+      readDraftFromDom();
+      const arr = dialogDraft.calendarEvents;
+      if (!Array.isArray(arr)) return;
+      if (act === 'up' && i > 0) {
+        [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+      }
+      if (act === 'down' && i < arr.length - 1) {
+        [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+      }
+      if (act === 'del') {
+        if (!confirm('¿Eliminar este evento del calendario?')) return;
+        arr.splice(i, 1);
+      }
+      renderDashboardWidgetEditor();
+      renderDashboardRssEditor();
+      renderDashboardCalendarEditor();
+      return;
+    }
+
     if (t.classList.contains('dash-add-feed')) {
       const ri = parseInt(t.dataset.readerIndex, 10);
       if (!dialogDraft || !dialogDraft.rssReaders[ri]) return;
@@ -350,6 +460,7 @@ function setupDashboardCustomizeUi() {
       dialogDraft.rssReaders[ri].feeds.push({ name: 'Feed', url: 'https://' });
       renderDashboardWidgetEditor();
       renderDashboardRssEditor();
+      renderDashboardCalendarEditor();
     }
   });
 }

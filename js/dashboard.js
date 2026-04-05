@@ -1,5 +1,5 @@
 /* ================================================================
-   DASHBOARD — Estado unificado: cajas de favoritos, lectores RSS y rejilla
+   DASHBOARD — Estado unificado: favoritos, RSS, calendario y rejilla
    Depende de: config.js (START_PAGE_DEFAULTS_URL, PERSIST_…, REMOTE_DASHBOARD_SYNC_*)
    ================================================================ */
 
@@ -7,7 +7,7 @@ const DASHBOARD_STORAGE_KEY = 'startPage_dashboard_v1';
 const OLD_BOOKMARKS_KEY = 'startPage_bookmarks_v1';
 const DASHBOARD_VERSION = 1;
 
-/** @type {{ version: number, bookmarkColumns: number, rssColumns: number, widgets: object[], rssReaders: object[] } | null} */
+/** @type {{ version: number, bookmarkColumns: number, rssColumns: number, widgets: object[], rssReaders: object[], calendarEvents: object[] } | null} */
 let dashboard = null;
 let dashboardStorageOk = false;
 
@@ -131,19 +131,55 @@ function sanitizeRssReaders(data) {
   return out;
 }
 
+/** Eventos locales: { id, title, date: YYYY-MM-DD, time?: HH:mm, notes?: string } */
+function sanitizeCalendarEvents(data) {
+  if (!Array.isArray(data)) return null;
+  const out = [];
+  for (let i = 0; i < data.length; i++) {
+    const e = data[i];
+    if (!e || typeof e !== 'object') return null;
+    const title = typeof e.title === 'string' ? e.title.trim() : '';
+    if (!title) return null;
+    const dateStr = typeof e.date === 'string' ? e.date.trim() : '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null;
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    const test = new Date(y, mo - 1, d);
+    if (test.getFullYear() !== y || test.getMonth() !== mo - 1 || test.getDate() !== d) return null;
+    let id = typeof e.id === 'string' && e.id ? e.id : newEntityId('cal');
+    const entry = { id, title, date: dateStr };
+    const notes = typeof e.notes === 'string' ? e.notes.trim() : '';
+    if (notes) entry.notes = notes;
+    const timeStr = typeof e.time === 'string' ? e.time.trim() : '';
+    if (timeStr) {
+      if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(timeStr)) return null;
+      const [hh, mm] = timeStr.split(':');
+      entry.time = `${hh.padStart(2, '0')}:${mm}`;
+    }
+    out.push(entry);
+  }
+  return out;
+}
+
 function validateDashboardObject(d) {
   if (!d || typeof d !== 'object') return null;
   const bc = Math.min(3, Math.max(1, parseInt(d.bookmarkColumns, 10) || 2));
   const rc = Math.min(2, Math.max(0, parseInt(d.rssColumns, 10) || 1));
   const widgets = sanitizeWidgets(d.widgets);
   const rssReaders = sanitizeRssReaders(d.rssReaders);
-  if (widgets === null || rssReaders === null) return null;
+  const calRaw = d.calendarEvents;
+  const calendarEvents = Array.isArray(calRaw)
+    ? sanitizeCalendarEvents(calRaw)
+    : calRaw === undefined
+      ? []
+      : null;
+  if (widgets === null || rssReaders === null || calendarEvents === null) return null;
   return {
     version: DASHBOARD_VERSION,
     bookmarkColumns: bc,
     rssColumns: rc,
     widgets,
     rssReaders,
+    calendarEvents,
   };
 }
 
@@ -165,6 +201,7 @@ function minimalEmptyDashboard() {
     rssColumns: 2,
     widgets: [],
     rssReaders: [],
+    calendarEvents: [],
   };
 }
 
@@ -395,6 +432,9 @@ async function loadDashboardAsync() {
                   rssColumns: base.rssColumns,
                   widgets,
                   rssReaders: cloneRssReadersWithNewIds(base.rssReaders),
+                  calendarEvents: deepClone(
+                    Array.isArray(base.calendarEvents) ? base.calendarEvents : [],
+                  ),
                 };
               }
             }
@@ -456,15 +496,16 @@ function applyLayoutToDom() {
     main.style.setProperty('--rss-track-max', '400px');
   }
 
-  const hideRss =
-    dashboard.rssColumns === 0 || !dashboard.rssReaders.length;
-  main.classList.toggle('main-layout--no-rss', hideRss);
+  const hideRss = dashboard.rssColumns === 0 || !dashboard.rssReaders.length;
   if (rssZone) {
     rssZone.hidden = hideRss;
     /* Sticky solo si hay como máximo un widget por columna; si no, se empalman al scroll */
     const stickyOk =
       !hideRss && dashboard.rssReaders.length <= dashboard.rssColumns;
     rssZone.classList.toggle('rss-zone--sticky-widgets', stickyOk);
+  }
+  if (main) {
+    main.classList.toggle('main-layout--no-rss', hideRss);
   }
 }
 

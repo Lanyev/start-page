@@ -1,0 +1,299 @@
+/* ================================================================
+   CALENDARIO — Eventos locales (mismo JSON que el dashboard)
+   ================================================================ */
+
+.calendar-widget {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Debajo de los feeds: mismo ancho que la rejilla RSS; altura ~ dos widgets feed */
+.main-layout__calendar .calendar-widget {
+  width: 100%;
+  max-width: none;
+  max-height: calc(100vh - 120px);
+  min-height: clamp(22rem, 52vh, 36rem);
+}
+
+.main-layout__calendar .calendar-widget__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.main-layout__calendar .calendar-widget__day {
+  max-height: 2.45rem;
+}
+
+.calendar-widget__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.calendar-widget__title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.calendar-widget__title svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.calendar-widget__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calendar-widget__icon-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  padding: 0.28rem 0.45rem;
+  line-height: 1;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.calendar-widget__icon-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.calendar-widget__month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.35rem;
+}
+
+.calendar-widget__month-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.calendar-widget__grid-wrap {
+  padding: 0 0.65rem 0.5rem;
+}
+
+.calendar-widget__dow {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-widget__dow span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.calendar-widget__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.calendar-widget__day {
+  aspect-ratio: 1;
+  max-height: 2.15rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+[data-theme='light'] .calendar-widget__day {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.calendar-widget__day:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.calendar-widget__day--muted {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.calendar-widget__day--muted:hover {
+  border-color: transparent;
+  color: inherit;
+}
+
+.calendar-widget__day--today {
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.calendar-widget__day--selected {
+  background: rgba(123, 97, 255, 0.22);
+  border-color: var(--color-primary);
+}
+
+.calendar-widget__day--has-events::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.calendar-widget__list-head {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 0.4rem 0.75rem 0.25rem;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.calendar-widget__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem 0.65rem;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.calendar-widget__empty {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.75rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.calendar-widget__event {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.35rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background var(--transition);
+}
+
+.calendar-widget__event:hover {
+  background: rgba(123, 97, 255, 0.08);
+}
+
+.calendar-widget__event-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.calendar-widget__event-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.15rem;
+  line-height: 1.25;
+}
+
+.calendar-widget__event-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.calendar-widget__event-notes {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0.25rem 0 0;
+  line-height: 1.35;
+}
+
+.calendar-widget__event-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.2rem;
+}
+
+.calendar-event-dialog {
+  max-width: min(96vw, 420px);
+}
+
+.calendar-event-dialog .bookmark-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Personalizar página: filas de eventos */
+#dash-calendar-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dash-cal-row {
+  display: grid;
+  grid-template-columns: 1fr minmax(8.5rem, 0.95fr) minmax(5.5rem, 0.55fr) auto;
+  gap: 0.35rem;
+  align-items: end;
+  padding: 0.45rem;
+  background: rgba(123, 97, 255, 0.06);
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.dash-cal-row .dash-cal-notes {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 520px) {
+  .dash-cal-row {
+    grid-template-columns: 1fr;
+  }
+  .dash-cal-row .dash-row-actions {
+    justify-content: flex-end;
+  }
+}

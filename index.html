@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/bookmarks.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
   <link rel="stylesheet" href="css/rss.css" />
+  <link rel="stylesheet" href="css/calendar.css" />
   <link rel="stylesheet" href="css/tooltip.css" />
 </head>
 <body>
@@ -34,7 +35,8 @@
       ]
     }
   ],
-  "rssReaders": []
+  "rssReaders": [],
+  "calendarEvents": []
 }</script>
 
   <!-- ─── Capas de fondo (crossfade) ─────────────────────────── -->
@@ -171,7 +173,12 @@
       <div class="main-layout__bookmarks">
         <div class="bookmarks-grid" id="bookmarks-grid"></div>
       </div>
-      <div class="main-layout__rss" id="rss-zone" hidden></div>
+      <div class="main-layout__side">
+        <div class="main-layout__rss" id="rss-zone" hidden></div>
+        <div class="main-layout__calendar">
+          <div id="calendar-zone"></div>
+        </div>
+      </div>
     </main>
 
   </div><!-- /.page-wrapper -->
@@ -260,11 +267,49 @@
             <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary" id="dash-add-rss-reader">+ Añadir lector</button>
           </div>
         </fieldset>
+        <fieldset class="dashboard-fieldset">
+          <legend>Calendario</legend>
+          <p class="dash-feeds-label">Eventos locales (mismo JSON que favoritos y RSS al exportar o sincronizar)</p>
+          <div id="dash-calendar-events-list"></div>
+          <div class="dash-add-bar">
+            <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary" id="dash-add-calendar-event">+ Añadir evento</button>
+          </div>
+        </fieldset>
       </div>
       <div class="dashboard-modal__actions">
         <button type="button" class="dashboard-modal__btn dashboard-modal__btn--secondary" id="dashboard-customize-cancel">Cancelar</button>
         <button type="button" class="dashboard-modal__btn dashboard-modal__btn--primary" id="dashboard-customize-save">Guardar</button>
       </div>
+    </div>
+  </dialog>
+
+  <dialog id="calendar-event-dialog" class="dashboard-modal calendar-event-dialog" aria-labelledby="calendar-event-dialog-title">
+    <div class="dashboard-modal__inner">
+      <h2 id="calendar-event-dialog-title" class="dashboard-modal__title">Nuevo evento</h2>
+      <form id="calendar-event-form" class="bookmark-modal__form" novalidate>
+        <input type="hidden" id="calendar-event-id" value="" />
+        <p id="calendar-event-error" class="bookmark-modal__error" hidden></p>
+        <label class="bookmark-modal__label">
+          Título
+          <input type="text" id="calendar-event-title" class="bookmark-modal__input" required autocomplete="off" maxlength="200" />
+        </label>
+        <label class="bookmark-modal__label">
+          Fecha
+          <input type="date" id="calendar-event-date" class="bookmark-modal__input" required />
+        </label>
+        <label class="bookmark-modal__label">
+          Hora (opcional)
+          <input type="time" id="calendar-event-time" class="bookmark-modal__input" />
+        </label>
+        <label class="bookmark-modal__label">
+          Notas
+          <textarea id="calendar-event-notes" class="bookmark-modal__textarea" rows="2" maxlength="500" placeholder="Opcional"></textarea>
+        </label>
+        <div class="bookmark-modal__actions">
+          <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary" id="calendar-event-cancel">Cancelar</button>
+          <button type="submit" class="bookmark-modal__btn bookmark-modal__btn--primary">Guardar</button>
+        </div>
+      </form>
     </div>
   </dialog>
 
@@ -313,6 +358,7 @@
   <script src="js/wallpaper-ui.js" defer></script>
   <script src="js/tooltip.js" defer></script>
   <script src="js/rss.js" defer></script>
+  <script src="js/calendar.js" defer></script>
   <script src="js/dashboard-ui.js" defer></script>
   <script src="js/main.js" defer></script>
 

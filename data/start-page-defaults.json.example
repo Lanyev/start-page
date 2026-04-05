@@ -14,5 +14,6 @@
       ]
     }
   ],
-  "rssReaders": []
+  "rssReaders": [],
+  "calendarEvents": []
 }

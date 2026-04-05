@@ -8,6 +8,11 @@ const BOOKMARKS_EXPORT_FILENAME = 'startpage-dashboard.json';
 /** Copia de trabajo: categorías con enlaces (se sincroniza con storage o memoria) */
 let bookmarksCategories = [];
 
+function syncBookmarksFromDashboard() {
+  const d = getDashboard();
+  if (d) bookmarksCategories = d.widgets;
+}
+
 /** Refleja isDashboardStorageOk() (sin aviso si la persistencia en disco está desactivada en config) */
 let bookmarksLocalStorageOk = false;
 
@@ -132,6 +137,7 @@ function importBookmarks(jsonText) {
   applyLayoutToDom();
   renderBookmarks();
   rebuildRssDomAndLoad();
+  rebuildCalendarDom();
   showToast('Datos importados');
   return true;
 }
@@ -146,6 +152,7 @@ function resetBookmarks() {
   applyLayoutToDom();
   renderBookmarks();
   rebuildRssDomAndLoad();
+  rebuildCalendarDom();
   showToast('Página restablecida a valores de fábrica');
 }
 
@@ -527,7 +534,7 @@ function setupBookmarksImportExport() {
   });
 
   document.getElementById('btn-reset-bookmarks')?.addEventListener('click', () => {
-    if (confirm('¿Restablecer la página (cajas, favoritos y lectores RSS) al estado inicial? Se perderán los cambios no exportados.')) {
+    if (confirm('¿Restablecer la página (cajas, favoritos, calendario y lectores RSS) al estado inicial? Se perderán los cambios no exportados.')) {
       resetBookmarks();
       closeFavMenu();
     }
