@@ -17,8 +17,16 @@ const WALLPAPERS = [
 const WALLPAPER_INTERVAL     = 30;
 const WALLPAPER_RESUME_AFTER = 120;
 
-/** Proxy para feeds RSS en el navegador (las peticiones salen a Internet). Cadena vacía = sin proxy (puede fallar CORS en algunos feeds). */
-const CORS_PROXY = 'https://corsproxy.io/?';
+/**
+ * Proxies CORS para RSS: se prueban en orden hasta que uno responda bien.
+ * Algunos dominios (p. ej. fitgirl-repacks.site) reciben 403 en corsproxy.io;
+ * el segundo suele funcionar vía allorigins.
+ * Cadena vacía en una función = omitir ese salto (no uses: no hay «sin proxy» útil por CORS).
+ */
+const RSS_CORS_PROXIES = [
+  (feedUrl) => `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`,
+  (feedUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
+];
 
 const SEARCH_ENGINES = {
   perplexity: q => `https://www.perplexity.ai/search/new?q=${encodeURIComponent(q)}`,

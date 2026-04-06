@@ -1,6 +1,6 @@
 /* ================================================================
    RSS — Varios lectores, feeds configurables por lector
-   Depende de: config.js (CORS_PROXY, RSS_ARTICLE_LIMIT, RSS_AUTO_REFRESH_MS), dashboard.js, favicon.js
+   Depende de: config.js (RSS_CORS_PROXIES, RSS_ARTICLE_LIMIT, RSS_AUTO_REFRESH_MS), dashboard.js, favicon.js
    ================================================================ */
 
 /** @type {Map<string, { outcomes: FeedOutcome[], selectedIndex: number }>} */
@@ -236,24 +236,59 @@ function initRssFeed() {
 
 /* ── Descarga y detecta el formato del feed ─────────────────────── */
 async function fetchFeed({ name, url }) {
-  const res = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const builders =
+    typeof RSS_CORS_PROXIES !== 'undefined' && Array.isArray(RSS_CORS_PROXIES) && RSS_CORS_PROXIES.length
+      ? RSS_CORS_PROXIES
+      : [(u) => `https://corsproxy.io/?${encodeURIComponent(u)}`];
 
-  const text = await res.text();
-  const doc  = new DOMParser().parseFromString(text, 'application/xml');
+  let lastErr = new Error('Sin proxies RSS configurados');
+  for (const build of builders) {
+    try {
+      const proxyUrl = build(url);
+      if (!proxyUrl) continue;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-  return doc.querySelector('feed')
-    ? parseAtom(doc, name, url)
-    : parseRss(doc, name, url);
+      const text = await res.text();
+      const doc = new DOMParser().parseFromString(text, 'application/xml');
+      if (doc.querySelector('parsererror')) {
+        throw new Error('Respuesta no es XML válido (¿proxy bloqueado o HTML de error?)');
+      }
+
+      const articles = doc.querySelector('feed')
+        ? parseAtom(doc, name, url)
+        : parseRss(doc, name, url);
+      return articles;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}
+
+function rssItemLink(item) {
+  const linkEl = item.querySelector('link');
+  if (linkEl) {
+    const href = linkEl.getAttribute('href')?.trim();
+    if (href) return href;
+    const t = linkEl.textContent?.trim();
+    if (t) return t;
+  }
+  const guid = item.querySelector('guid');
+  if (guid?.getAttribute('isPermaLink') === 'true') {
+    const g = guid.textContent?.trim();
+    if (g && /^https?:\/\//i.test(g)) return g;
+  }
+  return '#';
 }
 
 function parseRss(doc, source, feedUrl) {
   return Array.from(doc.querySelectorAll('item')).map(item => ({
-    title:  item.querySelector('title')?.textContent?.trim() || 'Sin título',
-    link:   item.querySelector('link')?.textContent?.trim() || '#',
+    title: item.querySelector('title')?.textContent?.trim() || 'Sin título',
+    link: rssItemLink(item),
     source,
     feedUrl,
-    date:   new Date(item.querySelector('pubDate')?.textContent?.trim() || 0),
+    date: new Date(item.querySelector('pubDate')?.textContent?.trim() || 0),
   }));
 }
 
