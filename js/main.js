@@ -18,7 +18,9 @@ async function boot() {
   await initBookmarks();
   initTooltip();
   initRssFeed();
+  if (typeof initWidgetDragReorder === 'function') initWidgetDragReorder();
   initCalendar();
+  if (typeof initInteractions === 'function') initInteractions();
 }
 
 boot();

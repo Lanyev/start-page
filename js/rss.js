@@ -75,8 +75,24 @@ function buildRssReadersDom() {
       </svg>
       Actualizar`;
 
+    const dragBtn = document.createElement('button');
+    dragBtn.type = 'button';
+    dragBtn.className = 'rss-widget__drag';
+    dragBtn.dataset.dragHandle = 'rss-widget';
+    dragBtn.setAttribute('aria-label', `Mover lector ${r.title}`);
+    dragBtn.setAttribute('title', 'Arrastrar para reordenar');
+    dragBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M7.25 4a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm0 6a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm-1.25 7.25a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM15.25 4a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm-1.25 7.25a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm1.25 5a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z"/>
+      </svg>`;
+
+    const headerActions = document.createElement('div');
+    headerActions.className = 'rss-widget__actions';
+    headerActions.appendChild(dragBtn);
+    headerActions.appendChild(refreshBtn);
+
     header.appendChild(h2);
-    header.appendChild(refreshBtn);
+    header.appendChild(headerActions);
 
     const body = document.createElement('div');
     body.className = 'rss-widget__body';

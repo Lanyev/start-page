@@ -1,0 +1,342 @@
+/* Modern clean layer: keeps the existing modules, simplifies the final UI. */
+:root {
+  --font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-bg-body: #0d1117;
+  --color-bg-overlay: rgba(13, 17, 23, 0.76);
+  --color-surface: rgba(22, 27, 34, 0.88);
+  --color-surface-hover: rgba(33, 38, 45, 0.96);
+  --color-surface-elevated: #161b22;
+  --color-border: rgba(139, 148, 158, 0.22);
+  --color-border-hover: rgba(88, 166, 255, 0.42);
+  --color-text: #f0f6fc;
+  --color-text-muted: #9aa7b4;
+  --color-text-dim: #6e7681;
+  --color-primary: #2f81f7;
+  --color-primary-soft: #1f6feb;
+  --color-primary-glow: rgba(47, 129, 247, 0.22);
+  --color-primary-subtle: rgba(47, 129, 247, 0.1);
+  --color-accent-blue: #3fb950;
+  --color-danger: #f85149;
+  --color-danger-glow: rgba(248, 81, 73, 0.14);
+  --color-success: #3fb950;
+  --color-header-bg: rgba(13, 17, 23, 0.86);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-card: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --shadow-card: 0 12px 34px rgba(0, 0, 0, 0.22);
+  --shadow-elevated: 0 18px 60px rgba(0, 0, 0, 0.38);
+  --shadow-primary: 0 0 0 4px var(--color-primary-glow);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --blur-glass: blur(10px);
+  --blur-heavy: blur(16px);
+  --text-2xs: 0.68rem;
+  --text-xs: 0.76rem;
+  --text-sm: 0.88rem;
+  --text-base: 1rem;
+  --text-lg: 1.18rem;
+  --text-xl: 1.45rem;
+  --text-2xl: 2.05rem;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --color-bg-body: #f6f8fa;
+  --color-bg-overlay: rgba(246, 248, 250, 0.78);
+  --color-surface: rgba(255, 255, 255, 0.92);
+  --color-surface-hover: #f6f8fa;
+  --color-surface-elevated: #ffffff;
+  --color-border: rgba(31, 35, 40, 0.14);
+  --color-border-hover: rgba(9, 105, 218, 0.34);
+  --color-text: #1f2328;
+  --color-text-muted: #59636e;
+  --color-text-dim: #818b98;
+  --color-primary: #0969da;
+  --color-primary-soft: #0550ae;
+  --color-primary-glow: rgba(9, 105, 218, 0.16);
+  --color-primary-subtle: rgba(9, 105, 218, 0.08);
+  --color-header-bg: rgba(255, 255, 255, 0.86);
+  --shadow-card: 0 10px 28px rgba(31, 35, 40, 0.08);
+  --shadow-elevated: 0 22px 70px rgba(31, 35, 40, 0.16);
+  color-scheme: light;
+}
+
+html { scroll-behavior: auto; }
+body { background: var(--color-bg-body); }
+.aura-bg, .aura-bg__orb { display: none; }
+.page-wrapper { padding-bottom: 2rem; }
+
+header {
+  grid-template-columns: minmax(9rem, 0.7fr) minmax(18rem, 42rem) auto;
+  padding: 0.9rem clamp(1rem, 4vw, 3rem);
+}
+
+.clock__time {
+  font-size: var(--text-2xl);
+  letter-spacing: 0;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.clock__date { letter-spacing: 0; }
+
+.search-bar {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card), var(--shadow-inset);
+  overflow: hidden;
+}
+
+.search-bar__engine,
+.search-bar__input,
+.search-bar__btn {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.search-bar__engine,
+.search-bar__input { background: transparent; }
+.search-bar__btn { padding-inline: 1rem; }
+
+.header-fav-menu__trigger,
+.theme-toggle {
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-inset);
+}
+
+.main-layout {
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 4vw, 3rem) 2rem;
+}
+
+.bookmarks-grid { gap: 1rem; }
+
+.card,
+.rss-widget,
+.dashboard-modal,
+.bookmark-modal,
+.bookmark-delete-confirm__box,
+.bookmark-deleted-undo__bar,
+.app-toast,
+.calendar-widget {
+  border-radius: var(--radius-card);
+}
+
+.card {
+  padding: 0.85rem;
+  overflow: visible;
+  transform: none;
+}
+
+.card::before { display: none; }
+
+.card:hover {
+  transform: none;
+  border-color: var(--color-border-hover);
+}
+
+.card__head {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card__title,
+.rss-widget__title {
+  color: var(--color-text);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.card__add-btn,
+.card__drag-btn,
+.rss-widget__drag,
+.dash-icon-btn { border-radius: var(--radius-sm); }
+
+.card__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.65rem;
+}
+
+.card__item { min-width: 0; }
+
+.card__link-row {
+  align-items: stretch;
+  min-height: 5.4rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="light"] .card__link-row { background: rgba(246, 248, 250, 0.7); }
+
+.card__item:hover .card__link-row {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.card__link {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 0.65rem;
+  row-gap: 0.12rem;
+  align-items: start;
+  padding: 0.75rem;
+}
+
+.card__link-favicon,
+.card__link .favicon-svg-wrap {
+  grid-row: 1 / span 3;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-subtle);
+}
+
+.card__link-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.card__link-desc {
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__link-url {
+  min-width: 0;
+  color: var(--color-text-dim);
+  font-size: var(--text-2xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__link-actions {
+  padding: 0.45rem 0.45rem 0.45rem 0;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.card__link-edit,
+.card__link-delete {
+  opacity: 1;
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.rss-widget { max-height: min(42rem, calc(100vh - 7rem)); }
+.rss-widget__header { padding: 0.8rem 0.9rem; }
+.rss-widget__refresh { min-height: 2rem; }
+
+.rss-item {
+  padding: 0.72rem 0.9rem;
+  border-bottom-color: var(--color-border);
+}
+
+.rss-item:first-child {
+  margin: 0.55rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-card);
+}
+
+.rss-item__title { font-size: 0.9rem; }
+.rss-item__source { border-radius: var(--radius-sm); }
+
+.dashboard-modal__title,
+.bookmark-modal__title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.dashboard-fieldset {
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="light"] .dashboard-fieldset { background: rgba(246, 248, 250, 0.72); }
+
+.dash-widget-row,
+.dash-rss-block,
+.dash-feed-row,
+.dash-cal-row { border-radius: var(--radius-card); }
+
+.bookmark-modal__input,
+.bookmark-modal__textarea,
+.bookmark-modal__select,
+.dashboard-cols-row select {
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+}
+
+.bookmark-modal__actions,
+.dashboard-modal__actions,
+.bookmark-delete-confirm__actions { gap: 0.6rem; }
+
+.bookmark-modal__btn,
+.dashboard-modal__btn,
+.bookmark-delete-confirm__btn,
+.rss-error__btn,
+.bookmark-deleted-undo__btn {
+  min-height: 2.35rem;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 900px) {
+  header { grid-template-columns: 1fr auto; }
+  .search-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .main-layout { grid-template-columns: 1fr; }
+  .bookmarks-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 600px) {
+  .page-wrapper { padding-bottom: 1rem; }
+  header {
+    position: sticky;
+    padding: 0.75rem;
+  }
+  .clock__time { font-size: 1.55rem; }
+  .header-trailing { gap: 0.45rem; }
+  .search-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .search-bar__engine { border-bottom: 1px solid var(--color-border); }
+  .search-bar__input-wrap { min-width: 0; }
+  .search-bar__btn {
+    width: 2.9rem;
+    padding-inline: 0;
+    justify-content: center;
+    font-size: 0;
+    gap: 0;
+  }
+  .search-bar__btn svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .main-layout { padding: 0.75rem; }
+  .card__links { grid-template-columns: 1fr; }
+  .card__link-row { min-height: 5rem; }
+  .dashboard-modal,
+  .bookmark-modal,
+  .bookmark-delete-confirm { max-width: calc(100vw - 1rem); }
+}

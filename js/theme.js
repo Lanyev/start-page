@@ -1,5 +1,5 @@
 /* ================================================================
-   THEME — Toggle entre tema oscuro y claro
+   THEME  Toggle entre tema oscuro y claro
    ================================================================ */
 
 function initThemeToggle() {
