@@ -1,6 +1,6 @@
 # Start Page
 
-Pagina de inicio personal para el navegador. Permite buscar en la web, organizar favoritos por categorias, leer fuentes RSS, cambiar entre modo claro/oscuro y guardar la configuracion localmente.
+Pagina de inicio personal para el navegador. Permite buscar en la web, organizar favoritos por categorias, leer fuentes RSS, personalizar iconos e imagenes, cambiar entre modo claro/oscuro y guardar la configuracion localmente.
 
 ## Requisitos
 
@@ -27,11 +27,11 @@ Tambien puedes abrir `index.html` directamente, aunque algunas funciones depende
 
 ## Uso
 
-- Menu superior: personalizar categorias, favoritos, RSS, calendario, exportar/importar JSON y restablecer datos.
-- Categorias: desde `Personalizar pagina` puedes cambiar nombre, emoji, imagen/icono, descripcion y orden.
+- Menu superior: abre `Personalizar pagina`, gestiona fondos, exporta/importa JSON o restablece datos.
+- Categorias: desde `Personalizar pagina` puedes cambiar nombre, emoji, imagen/icono, descripcion y orden. La imagen puede ser una URL/ruta o un archivo subido desde tu equipo.
 - Favoritos: usa el boton `+` de cada categoria para agregar un sitio. Cada tarjeta incluye icono grande, nombre, dominio y descripcion corta opcional.
-- IA para favoritos: desde el editor puedes abrir ChatGPT con el prompt listo. Gemini abre la app y copia el prompt al portapapeles para pegarlo y enviarlo.
-- Iconos: puedes pegar una URL/ruta, subir una imagen local o abrir una busqueda en Simple Icons desde el formulario.
+- Editor de favoritos: permite agregar, editar, eliminar, mover de categoria, cambiar icono, subir icono local, quitarlo o buscar uno en Simple Icons.
+- IA para favoritos: el boton `ChatGPT` abre un chat nuevo con el prompt listo para generar una descripcion corta y un prompt de imagen para icono. El boton `Gemini` copia ese prompt al portapapeles y abre Gemini para pegarlo y enviarlo.
 - RSS: agrega lectores y feeds desde `Personalizar pagina`; se guardan junto con el resto del tablero.
 - Tema: usa el boton de sol/luna para alternar modo claro y oscuro.
 - Fondos: gestiona imagenes desde el menu o los controles laterales.
