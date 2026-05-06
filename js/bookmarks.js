@@ -240,6 +240,16 @@ function renderBookmarks() {
     titleText.textContent = cat.title;
     title.appendChild(titleText);
 
+    const titleWrap = document.createElement('div');
+    titleWrap.className = 'card__title-wrap';
+    titleWrap.appendChild(title);
+    if (cat.desc) {
+      const catDesc = document.createElement('p');
+      catDesc.className = 'card__category-desc';
+      catDesc.textContent = cat.desc;
+      titleWrap.appendChild(catDesc);
+    }
+
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'card__add-btn';
@@ -260,7 +270,7 @@ function renderBookmarks() {
     headActions.appendChild(dragBtn);
     headActions.appendChild(addBtn);
 
-    head.appendChild(title);
+    head.appendChild(titleWrap);
     head.appendChild(headActions);
     card.appendChild(head);
 
@@ -283,19 +293,20 @@ function renderBookmarks() {
 
       const a = document.createElement('a');
       const name = document.createElement('span');
-      const fav = createFaviconImg(domain, 16, link.icon || null);
+      const fav = createFaviconImg(domain, 48, link.icon || null);
       fav.className = 'card__link-favicon';
 
       name.className = 'card__link-name';
       name.textContent = link.name;
 
-      const desc = document.createElement('span');
-      desc.className = 'card__link-desc';
-      desc.textContent = link.desc || 'Favorito guardado';
-
       const urlLabel = document.createElement('span');
       urlLabel.className = 'card__link-url';
       urlLabel.textContent = domain || link.url;
+
+      const desc = document.createElement('span');
+      desc.className = 'card__link-desc';
+      desc.textContent = link.desc || '';
+      desc.hidden = !link.desc;
 
       a.href = link.url;
       a.target = '_blank';
@@ -305,15 +316,15 @@ function renderBookmarks() {
       a._tooltipData = {
         name: link.name,
         url: link.url,
-        desc: link.desc || '',
+        desc: link.desc || domain || link.url,
         domain,
         icon: link.icon || null,
       };
 
       a.appendChild(fav);
       a.appendChild(name);
-      a.appendChild(desc);
       a.appendChild(urlLabel);
+      a.appendChild(desc);
 
       const actions = document.createElement('div');
       actions.className = 'card__link-actions';
@@ -535,6 +546,106 @@ function handleBookmarkFormSubmit(e) {
   }
 }
 
+function currentBookmarkAiPrompt() {
+  const name = document.getElementById('bookmark-name')?.value.trim() || 'este sitio';
+  const url = normalizeBookmarkUrl(document.getElementById('bookmark-url')?.value || '');
+  const catIndex = parseInt(document.getElementById('bookmark-category')?.value || '0', 10);
+  const category = bookmarksCategories[catIndex]?.title || 'Sin categoria';
+
+  return [
+    'Ayudame a completar un favorito para mi pagina de inicio personal.',
+    '',
+    `Nombre: ${name}`,
+    `URL: ${url || 'sin URL'}`,
+    `Categoria: ${category}`,
+    '',
+    'Necesito dos resultados en espanol:',
+    '1. Una descripcion corta de maximo 90 caracteres, clara y util, sin comillas.',
+    '2. Un prompt para generar una imagen cuadrada que pueda usar como icono del favorito. Debe describir un icono simple, minimalista, reconocible, centrado, sin texto, alto contraste, fondo transparente o plano.',
+    '',
+    'Devuelve solo:',
+    'Descripcion: ...',
+    'Prompt de icono: ...',
+  ].join('\n');
+}
+
+function openAiPrompt(provider) {
+  const prompt = currentBookmarkAiPrompt();
+  const encoded = encodeURIComponent(prompt);
+  if (provider === 'chatgpt') {
+    window.open(`https://chatgpt.com/?q=${encoded}`, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  copyTextToClipboard(prompt)
+    .then(() => showToast('Prompt copiado. Pegalo en Gemini y envia.'))
+    .catch(() => showToast('No se pudo copiar el prompt automaticamente.', true));
+  window.open('https://gemini.google.com/app', '_blank', 'noopener,noreferrer');
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  const ok = document.execCommand('copy');
+  ta.remove();
+  if (!ok) throw new Error('copy failed');
+}
+
+function setupBookmarkIconTools() {
+  const fileInput = document.getElementById('bookmark-icon-file');
+  const iconInput = document.getElementById('bookmark-icon');
+  const searchBtn = document.getElementById('bookmark-icon-search');
+  const clearBtn = document.getElementById('bookmark-icon-clear');
+  const chatgptBtn = document.getElementById('bookmark-ai-chatgpt');
+  const geminiBtn = document.getElementById('bookmark-ai-gemini');
+
+  fileInput?.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    fileInput.value = '';
+    if (!file || !iconInput) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Elige un archivo de imagen.', true);
+      return;
+    }
+    if (file.size > 512 * 1024) {
+      showToast('El icono es grande. Usa una imagen menor a 512 KB.', true);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        iconInput.value = reader.result;
+        showToast('Icono cargado');
+      }
+    };
+    reader.onerror = () => showToast('No se pudo leer el icono.', true);
+    reader.readAsDataURL(file);
+  });
+
+  searchBtn?.addEventListener('click', () => {
+    const name = document.getElementById('bookmark-name')?.value.trim() || '';
+    const url = `https://simpleicons.org/?q=${encodeURIComponent(name)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    if (iconInput) iconInput.value = '';
+  });
+
+  chatgptBtn?.addEventListener('click', () => openAiPrompt('chatgpt'));
+  geminiBtn?.addEventListener('click', () => openAiPrompt('gemini'));
+}
+
 function setupBookmarksGridDelegation() {
   const grid = document.getElementById('bookmarks-grid');
   if (!grid) return;
@@ -585,6 +696,7 @@ function setupBookmarkModal() {
 
   form?.addEventListener('submit', handleBookmarkFormSubmit);
   cancel?.addEventListener('click', () => closeBookmarkModal());
+  setupBookmarkIconTools();
 
   dlg?.addEventListener('close', () => {
     bookmarkModalEdit = null;

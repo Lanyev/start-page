@@ -357,16 +357,40 @@
       </label>
       <label class="bookmark-modal__label">
         Descripción corta
-        <textarea id="bookmark-desc" class="bookmark-modal__textarea" rows="2" maxlength="400" placeholder="Opcional"></textarea>
+        <textarea id="bookmark-desc" class="bookmark-modal__textarea" rows="2" maxlength="180" placeholder="Opcional"></textarea>
       </label>
       <label class="bookmark-modal__label">
         Categoría
         <select id="bookmark-category" class="bookmark-modal__select"></select>
       </label>
+      <div class="bookmark-ai-tools" aria-label="Generar descripcion e icono con IA">
+        <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary bookmark-ai-tools__btn" id="bookmark-ai-chatgpt" data-tip-target="bookmark-ai-chatgpt-hint" aria-describedby="bookmark-ai-chatgpt-hint">
+          ChatGPT
+        </button>
+        <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary bookmark-ai-tools__btn" id="bookmark-ai-gemini" data-tip-target="bookmark-ai-gemini-hint" aria-describedby="bookmark-ai-gemini-hint">
+          Gemini
+        </button>
+        <p class="bookmark-ai-tools__hint" aria-live="polite">
+          <span id="bookmark-ai-chatgpt-hint">ChatGPT abre un chat nuevo con el prompt listo para generar una descripción corta y un prompt de icono.</span>
+          <span id="bookmark-ai-gemini-hint">Gemini copia el prompt al portapapeles y abre la app para que lo pegues y lo envies.</span>
+        </p>
+      </div>
       <label class="bookmark-modal__label">
-        Icono personalizado (URL o ruta)
-        <input type="text" id="bookmark-icon" class="bookmark-modal__input" placeholder="Opcional, ej. ./icons/sitio.png" autocomplete="off" />
+        Icono
+        <input type="text" id="bookmark-icon" class="bookmark-modal__input" placeholder="URL, ruta o imagen subida" autocomplete="off" />
       </label>
+      <div class="bookmark-icon-tools">
+        <label class="bookmark-icon-tools__upload">
+          <span>Subir icono</span>
+          <input type="file" id="bookmark-icon-file" accept="image/*" hidden />
+        </label>
+        <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary bookmark-icon-tools__btn" id="bookmark-icon-search">
+          Buscar icono
+        </button>
+        <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary bookmark-icon-tools__btn" id="bookmark-icon-clear">
+          Quitar icono
+        </button>
+      </div>
 
       <div class="bookmark-modal__actions">
         <button type="button" class="bookmark-modal__btn bookmark-modal__btn--secondary" id="bookmark-cancel">Cancelar</button>

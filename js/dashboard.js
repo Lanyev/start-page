@@ -29,6 +29,7 @@ function createEmptyWidget() {
     title: 'Nueva caja',
     icon: '📁',
     iconUrl: '',
+    desc: '',
     links: [],
   };
 }
@@ -89,6 +90,7 @@ function sanitizeWidgets(data) {
     if (!title) return null;
     const icon = typeof cat.icon === 'string' ? cat.icon : '';
     const iconUrl = typeof cat.iconUrl === 'string' ? cat.iconUrl.trim() : '';
+    const desc = typeof cat.desc === 'string' ? cat.desc.trim() : '';
     let id = typeof cat.id === 'string' && cat.id ? cat.id : newEntityId('w');
     const linksIn = Array.isArray(cat.links) ? cat.links : [];
     const links = [];
@@ -100,6 +102,7 @@ function sanitizeWidgets(data) {
     const w = { id, title, links };
     if (icon) w.icon = icon;
     if (iconUrl) w.iconUrl = iconUrl;
+    if (desc) w.desc = desc;
     out.push(w);
   }
   return out;

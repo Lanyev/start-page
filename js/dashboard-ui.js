@@ -42,13 +42,28 @@ function renderDashboardWidgetEditor() {
 
     const labUrl = document.createElement('label');
     labUrl.className = 'dash-field dash-field--grow';
-    labUrl.innerHTML = '<span class="dash-field__label">Icono URL (opcional)</span>';
+    labUrl.innerHTML = '<span class="dash-field__label">Imagen/Icono URL</span>';
     const inUrl = document.createElement('input');
-    inUrl.type = 'url';
+    inUrl.type = 'text';
     inUrl.className = 'dash-w-iconurl bookmark-modal__input';
-    inUrl.placeholder = 'https://…';
+    inUrl.placeholder = 'https://… o imagen subida';
     inUrl.value = w.iconUrl || '';
     labUrl.appendChild(inUrl);
+
+    const labDesc = document.createElement('label');
+    labDesc.className = 'dash-field dash-field--wide';
+    labDesc.innerHTML = '<span class="dash-field__label">Descripción</span>';
+    const inDesc = document.createElement('textarea');
+    inDesc.className = 'dash-w-desc bookmark-modal__textarea';
+    inDesc.rows = 2;
+    inDesc.maxLength = 180;
+    inDesc.placeholder = 'Opcional';
+    inDesc.value = w.desc || '';
+    labDesc.appendChild(inDesc);
+
+    const upload = document.createElement('label');
+    upload.className = 'dash-upload-btn';
+    upload.innerHTML = `<span>Subir imagen</span><input type="file" accept="image/*" data-dash-w-file="${i}" hidden />`;
 
     const actions = document.createElement('div');
     actions.className = 'dash-row-actions';
@@ -60,6 +75,8 @@ function renderDashboardWidgetEditor() {
     row.appendChild(labTitle);
     row.appendChild(labIcon);
     row.appendChild(labUrl);
+    row.appendChild(upload);
+    row.appendChild(labDesc);
     row.appendChild(actions);
     list.appendChild(row);
   });
@@ -175,11 +192,13 @@ function readDraftFromDom() {
     const title = row.querySelector('.dash-w-title')?.value.trim() || '';
     const icon = row.querySelector('.dash-w-icon')?.value.trim() || '📁';
     const iconUrl = row.querySelector('.dash-w-iconurl')?.value.trim() || '';
+    const desc = row.querySelector('.dash-w-desc')?.value.trim() || '';
     const prev = oldById[id];
     const links = prev ? deepClone(prev.links) : [];
     const w = { id, title, links };
     if (icon) w.icon = icon;
     if (iconUrl) w.iconUrl = iconUrl;
+    if (desc) w.desc = desc;
     widgets.push(w);
   });
   dialogDraft.widgets = widgets;
@@ -467,5 +486,34 @@ function setupDashboardCustomizeUi() {
       renderDashboardRssEditor();
       renderDashboardCalendarEditor();
     }
+  });
+
+  dlg?.addEventListener('change', e => {
+    const input = e.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!input.matches('[data-dash-w-file]')) return;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Elige un archivo de imagen.', true);
+      return;
+    }
+    if (file.size > 768 * 1024) {
+      showToast('La imagen es grande. Usa una menor a 768 KB.', true);
+      return;
+    }
+    const row = input.closest('.dash-widget-row');
+    const iconUrlInput = row?.querySelector('.dash-w-iconurl');
+    if (!iconUrlInput) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        iconUrlInput.value = reader.result;
+        showToast('Imagen de categoría cargada');
+      }
+    };
+    reader.onerror = () => showToast('No se pudo leer la imagen.', true);
+    reader.readAsDataURL(file);
   });
 }

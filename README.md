@@ -28,7 +28,10 @@ Tambien puedes abrir `index.html` directamente, aunque algunas funciones depende
 ## Uso
 
 - Menu superior: personalizar categorias, favoritos, RSS, calendario, exportar/importar JSON y restablecer datos.
-- Favoritos: usa el boton `+` de cada categoria para agregar un sitio. Cada tarjeta incluye icono, nombre, descripcion y dominio.
+- Categorias: desde `Personalizar pagina` puedes cambiar nombre, emoji, imagen/icono, descripcion y orden.
+- Favoritos: usa el boton `+` de cada categoria para agregar un sitio. Cada tarjeta incluye icono grande, nombre, dominio y descripcion corta opcional.
+- IA para favoritos: desde el editor puedes abrir ChatGPT con el prompt listo. Gemini abre la app y copia el prompt al portapapeles para pegarlo y enviarlo.
+- Iconos: puedes pegar una URL/ruta, subir una imagen local o abrir una busqueda en Simple Icons desde el formulario.
 - RSS: agrega lectores y feeds desde `Personalizar pagina`; se guardan junto con el resto del tablero.
 - Tema: usa el boton de sol/luna para alternar modo claro y oscuro.
 - Fondos: gestiona imagenes desde el menu o los controles laterales.
